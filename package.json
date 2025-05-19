@@ -1,1 +1,28 @@
-
+{
+  "name": "discord-luauscator",
+  "version": "1.0.0",
+  "description": "Discord bot for obfuscating Luau scripts",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "luau",
+    "obfuscator",
+    "roblox"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.11.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=16.9.0"
+  }
+}
