@@ -1,16 +1,15 @@
-// Aliases for builtin Lua functions to obfuscate code by replacing them with short names
-
-const builtinAliases = {
-  "string.sub": "ss",
-  "string.len": "sl",
-  "string.char": "sc",
-  "math.random": "mr",
-  "math.floor": "mf",
-  "table.insert": "ti",
-  "table.remove": "tr",
-  "coroutine.create": "cc",
-  "coroutine.resume": "cr",
-  // add more builtin function aliases as needed
+const builtinFunctions = {
+    'print': ['output', 'display', 'show', 'echo'],
+    'table.insert': ['addToTable', 'tableAdd', 'insertElement'],
+    'string.sub': ['strPart', 'substring', 'getSubstr'],
+    'math.floor': ['roundDown', 'floorNum', 'integerPart'],
+    'pairs': ['loopTable', 'iterateAll', 'tableIterator']
 };
 
-module.exports = builtinAliases;
+module.exports = function generateAlias(originalName) {
+    if (builtinFunctions[originalName]) {
+        const aliases = builtinFunctions[originalName];
+        return aliases[Math.floor(Math.random() * aliases.length)];
+    }
+    return originalName;
+};
