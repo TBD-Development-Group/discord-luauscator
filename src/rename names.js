@@ -1,20 +1,25 @@
-// Rename variable/function names to short random names to obfuscate
-
+const usedNames = new Set();
 const alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-function randomName(length = 6) {
-  let name = '';
-  for (let i = 0; i < length; i++) {
-    name += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
-  }
-  return name;
+
+function generateRandomName(length) {
+    let name = '';
+    for (let i = 0; i < length; i++) {
+        name += alphabet[Math.floor(Math.random() * alphabet.length)];
+    }
+    return name;
 }
 
-function renameNames(names) {
-  const renamed = {};
-  names.forEach(name => {
-    renamed[name] = randomName();
-  });
-  return renamed;
-}
-
-module.exports = renameNames;
+module.exports = function getNewName(originalName) {
+    if (usedNames.has(originalName)) {
+        return originalName;
+    }
+    
+    let newName;
+    do {
+        const length = Math.floor(Math.random() * 3) + 2;
+        newName = generateRandomName(length);
+    } while (usedNames.has(newName));
+    
+    usedNames.add(newName);
+    return newName;
+};
