@@ -1,44 +1,47 @@
-// Main entry point for the Lua obfuscator
-
 const fs = require('fs');
-const builtinAliases = require('./src/builtin func aliases');
-const encodeNumber = require('./src/encode numbers');
-const encodeString = require('./src/encode strings');
-const randomCode = require('./src/random code');
-const renameNames = require('./src/rename names');
+const { Client, GatewayIntentBits } = require('discord.js');
+const obfuscate = require('./obfuscator.js');  // your core obfuscator function
 
-function obfuscateLua(code) {
-  // Basic example pipeline:
-  // 1. Replace builtin functions with aliases
-  Object.entries(builtinAliases).forEach(([orig, alias]) => {
-    const regex = new RegExp(orig.replace('.', '\\.'), 'g');
-    code = code.replace(regex, alias);
-  });
+const config = require('./config.json');
 
-  // 2. Encode numbers and strings (basic example)
-  code = code.replace(/\d+/g, num => encodeNumber(Number(num)));
-  code = code.replace(/"([^"]*)"/g, (_, str) => encodeString(str));
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+});
 
-  // 3. Add random junk code
-  code += '\n' + randomCode();
+client.once('ready', () => {
+  console.log(`Logged in as ${client.user.tag}`);
+});
 
-  // 4. Rename variables (very basic)
-  // You would parse and detect vars to rename, simplified here:
-  const vars = ['foo', 'bar', 'baz'];
-  const renamed = renameNames(vars);
-  Object.entries(renamed).forEach(([orig, newName]) => {
-    const regex = new RegExp(`\\b${orig}\\b`, 'g');
-    code = code.replace(regex, newName);
-  });
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
+  if (!message.content.startsWith(config.prefix)) return;
 
-  return code;
-}
+  const args = message.content.slice(config.prefix.length).trim().split(/ +/);
+  const command = args.shift().toLowerCase();
 
-// Usage example:
-const inputLua = fs.readFileSync(process.argv[2], 'utf-8');
-const outputLua = obfuscateLua(inputLua);
-fs.writeFileSync(process.argv[3], outputLua);
+  if (command === 'obfuscate') {
+    if (args.length === 0) {
+      return message.reply('Please provide Lua code to obfuscate. Usage: `!obfuscate <code>`');
+    }
 
-console.log('Obfuscation complete.');
+    // Combine rest of args as Lua code
+    const luaCode = args.join(' ');
 
-module.exports = obfuscateLua;
+    try {
+      const obfuscated = obfuscate(luaCode);
+      // Discord message limit is 2000 chars, so truncate or send as file if too big
+      if (obfuscated.length > 1900) {
+        return message.reply({
+          files: [{ attachment: Buffer.from(obfuscated, 'utf-8'), name: 'obfuscated.lua' }]
+        });
+      } else {
+        return message.reply(`\`\`\`lua\n${obfuscated}\n\`\`\``);
+      }
+    } catch (err) {
+      console.error(err);
+      return message.reply('Failed to obfuscate the Lua code.');
+    }
+  }
+});
+
+client.login(config.token);
