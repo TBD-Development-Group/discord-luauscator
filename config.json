@@ -1,5 +1,9 @@
-
 {
-  "token": "YOUR_DISCORD_BOT_TOKEN_HERE",
-  "prefix": "!"
+    "encodeNumbers": true,
+    "encodeStrings": true,
+    "renameVariables": true,
+    "renameBuiltins": true,
+    "addJunkCode": true,
+    "minify": false,
+    "maxJunkCode": 3
 }
